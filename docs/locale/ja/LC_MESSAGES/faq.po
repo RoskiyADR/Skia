@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: discordpy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-09 17:16+0900\n"
-"PO-Revision-Date: 2022-03-09 13:28\n"
+"POT-Creation-Date: 2022-04-19 05:44+0000\n"
+"PO-Revision-Date: 2022-05-06 12:34\n"
 "Last-Translator: \n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -421,4 +421,24 @@ msgstr ":func:`~ext.commands.group` デコレータを使います。これに�
 #: ../../faq.rst:408
 msgid "This could then be used as ``?git push origin master``."
 msgstr "これは ``?git push origin master`` のように使うことができます。"
+
+#: ../../faq.rst:411
+msgid "Application Commands"
+msgstr "アプリケーションコマンド"
+
+#: ../../faq.rst:413
+msgid "Questions regarding Discord's new application commands, commonly known as \"slash commands\" or \"context menu commands\"."
+msgstr "一般的に「スラッシュコマンド」や「コンテキストメニューコマンド」と呼ばれている、Discordの新しいアプリケーションコマンドに関する質問。"
+
+#: ../../faq.rst:416
+msgid "My bot's commands are not showing up!"
+msgstr "私のボットのコマンドが一覧に表示されません！"
+
+#: ../../faq.rst:418
+msgid "Did you :meth:`~.CommandTree.sync` your command? Commands need to be synced before they will appear."
+msgstr "コマンドを :meth:`~.CommandTree.sync` しましたか？コマンドは出現する前に同期する必要があります。"
+
+#: ../../faq.rst:419
+msgid "Did you invite your bot with the correct permissions? Bots need to be invited with the ``application.commands`` scope in addition to the ``bot`` scope. For example, invite the bot with the following URL: ``https://discord.com/oauth2/authorize?client_id=<client id>&scope=applications.commands+bot``. Alternatively, if you use :func:`utils.oauth_url`, you can call the function as such: ``oauth_url(<other options>, scopes=(\"bot\", \"application.commands\"))``."
+msgstr "正しい権限でBotを招待しましたか？ ``bot`` スコープに加えて、 ``application.commands`` スコープ付きでBotを招待する必要があります。例えば、以下の URL でBotを招待します: ``https://discord.com/oauth2/authorize?client_id=<client id>&scope=applications.commands+bot` 。 あるいは、 :func:`utils.oauth_url` を使用している場合は、 ``oauth_url(<other options>, scopes=(\"bot\", \"applications\"))`` のように関数を呼び出すことができます。"
 
