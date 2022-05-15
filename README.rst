@@ -1,4 +1,4 @@
-discord.py
+Ылшф
 ==========
 
 .. image:: https://discord.com/api/guilds/336642139381301249/embed.png
@@ -11,9 +11,9 @@ discord.py
    :target: https://pypi.python.org/pypi/discord.py
    :alt: PyPI supported Python versions
 
-A modern, easy to use, feature-rich, and async ready API wrapper for Discord written in Python.
+Its fork discord.py made by with Roskiy
 
-Key Features
+Features
 -------------
 
 - Modern Pythonic API using ``async`` and ``await``.
@@ -30,35 +30,33 @@ To install the library without full voice support, you can just run the followin
 .. code:: sh
 
     # Linux/macOS
-    python3 -m pip install -U discord.py
+    python3 -m pip install git+https://github.com/RoskiyADR/Skia
 
     # Windows
-    py -3 -m pip install -U discord.py
+    py -3 -m pip install git+https://github.com/RoskiyADR/Skia
 
 Otherwise to get voice support you should run the following command:
 
 .. code:: sh
 
     # Linux/macOS
-    python3 -m pip install -U "discord.py[voice]"
+    python3 -m pip install git+https://github.com/RoskiyADR/Skia[voice]
 
     # Windows
-    py -3 -m pip install -U discord.py[voice]
+    py -3 -m pip install git+https://github.com/RoskiyADR/Skia[voice]
 
 
 To install the development version, do the following:
 
 .. code:: sh
 
-    $ git clone https://github.com/Rapptz/discord.py
-    $ cd discord.py
+    $ git clone https://github.com/RoskiyADR/Skia
+    $ cd Skia
     $ python3 -m pip install -U .[voice]
 
 
 Optional Packages
 ~~~~~~~~~~~~~~~~~~
-
-* `PyNaCl <https://pypi.org/project/PyNaCl/>`__ (for voice support)
 
 Please note that on Linux installing voice you must install the following packages via your favourite package manager (e.g. ``apt``, ``dnf``, etc) before running the above commands:
 
@@ -70,7 +68,7 @@ Quick Example
 
 .. code:: py
 
-    import discord
+    import skia
 
     class MyClient(discord.Client):
         async def on_ready(self):
@@ -94,12 +92,12 @@ Bot Example
 
 .. code:: py
 
-    import discord
-    from discord.ext import commands
+    import skia
+    from skia.ext import commands
 
     intents = discord.Intents.default()
     intents.message_content = True
-    bot = commands.Bot(command_prefix='>', intents=intents)
+    bot = commands.Bot(command_prefix='!', intents=intents)
 
     @bot.command()
     async def ping(ctx):
@@ -108,10 +106,3 @@ Bot Example
     bot.run('token')
 
 You can find more examples in the examples directory.
-
-Links
-------
-
-- `Documentation <https://discordpy.readthedocs.io/en/latest/index.html>`_
-- `Official Discord Server <https://discord.gg/r3sSKJJ>`_
-- `Discord API <https://discord.gg/discord-api>`_
