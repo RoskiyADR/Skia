@@ -798,6 +798,10 @@ In order to customise the flag syntax we also have a few options that can be pas
     a command line parser. The syntax is mainly inspired by Discord's search bar input and as a result
     all flags need a corresponding value.
 
+Flag converters will only raise :exc:`~ext.commands.FlagError` derived exceptions. If an error is raised while
+converting a flag, :exc:`~ext.commands.BadFlagArgument` is raised instead and the original exception
+can be accessed with the :attr:`~ext.commands.BadFlagArgument.original` attribute.
+
 The flag converter is similar to regular commands and allows you to use most types of converters
 (with the exception of :class:`~ext.commands.Greedy`) as the type annotation. Some extra support is added for specific
 annotations as described below.
@@ -927,7 +931,7 @@ For ease of use, the :func:`~ext.commands.flag` function accepts a ``description
     class BanFlags(commands.FlagConverter):
         member: discord.Member = commands.flag(description='The member to ban')
         reason: str = commands.flag(description='The reason for the ban')
-        days: int = 1 = commands.flag(description='The number of days worth of messages to delete')
+        days: int = commands.flag(default=1, description='The number of days worth of messages to delete')
 
 
     @commands.hybrid_command()

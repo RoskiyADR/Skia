@@ -33,7 +33,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Literal, Optional, 
 from discord.utils import MISSING, maybe_coroutine, resolve_annotation
 
 from .converter import run_converters
-from .errors import BadFlagArgument, CommandError, MissingFlagArgument, MissingRequiredFlag, TooManyFlags
+from .errors import BadFlagArgument, MissingFlagArgument, MissingRequiredFlag, TooManyFlags
 from .view import StringView
 
 __all__ = (
@@ -368,10 +368,8 @@ async def tuple_convert_all(ctx: Context[BotT], argument: str, flag: Flag, conve
 
         try:
             converted = await run_converters(ctx, converter, word, param)
-        except CommandError:
-            raise
         except Exception as e:
-            raise BadFlagArgument(flag) from e
+            raise BadFlagArgument(flag, word, e) from e
         else:
             results.append(converted)
 
@@ -393,15 +391,13 @@ async def tuple_convert_flag(ctx: Context[BotT], argument: str, flag: Flag, conv
 
         try:
             converted = await run_converters(ctx, converter, word, param)
-        except CommandError:
-            raise
         except Exception as e:
-            raise BadFlagArgument(flag) from e
+            raise BadFlagArgument(flag, word, e) from e
         else:
             results.append(converted)
 
     if len(results) != len(converters):
-        raise BadFlagArgument(flag)
+        raise MissingFlagArgument(flag)
 
     return tuple(results)
 
@@ -433,10 +429,8 @@ async def convert_flag(ctx: Context[BotT], argument: str, flag: Flag, annotation
 
     try:
         return await run_converters(ctx, annotation, argument, param)
-    except CommandError:
-        raise
     except Exception as e:
-        raise BadFlagArgument(flag) from e
+        raise BadFlagArgument(flag, argument, e) from e
 
 
 class FlagConverter(metaclass=FlagsMeta):
@@ -525,10 +519,12 @@ class FlagConverter(metaclass=FlagsMeta):
                 if not value:
                     raise MissingFlagArgument(last_flag)
 
+                name = last_flag.name.casefold() if case_insensitive else last_flag.name
+
                 try:
-                    values = result[last_flag.name]
+                    values = result[name]
                 except KeyError:
-                    result[last_flag.name] = [value]
+                    result[name] = [value]
                 else:
                     values.append(value)
 
@@ -541,10 +537,12 @@ class FlagConverter(metaclass=FlagsMeta):
             if not value:
                 raise MissingFlagArgument(last_flag)
 
+            name = last_flag.name.casefold() if case_insensitive else last_flag.name
+
             try:
-                values = result[last_flag.name]
+                values = result[name]
             except KeyError:
-                result[last_flag.name] = [value]
+                result[name] = [value]
             else:
                 values.append(value)
 
@@ -559,8 +557,6 @@ class FlagConverter(metaclass=FlagsMeta):
 
         Parameters
         ----------
-        cls: Type[:class:`FlagConverter`]
-            The flag converter class.
         ctx: :class:`Context`
             The invocation context.
         argument: :class:`str`
@@ -570,8 +566,6 @@ class FlagConverter(metaclass=FlagsMeta):
         --------
         FlagError
             A flag related parsing error.
-        CommandError
-            A command related error.
 
         Returns
         --------
