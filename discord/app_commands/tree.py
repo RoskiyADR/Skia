@@ -284,8 +284,11 @@ class CommandTree(Generic[ClientT]):
                 if found and not override:
                     raise CommandAlreadyRegistered(name, guild_id)
 
+                # If the key is found and overridden then it shouldn't count as an extra addition
+                # read as `0 if override and found else 1` if confusing
+                to_add = not (override and found)
                 total = sum(1 for _, g, t in self._context_menus if g == guild_id and t == type)
-                if total + found > 5:
+                if total + to_add > 5:
                     raise CommandLimitReached(guild_id=guild_id, limit=5, type=AppCommandType(type))
                 data[key] = command
 
@@ -316,7 +319,9 @@ class CommandTree(Generic[ClientT]):
                 found = name in commands
                 if found and not override:
                     raise CommandAlreadyRegistered(name, guild_id)
-                if len(commands) + found > 100:
+
+                to_add = not (override and found)
+                if len(commands) + to_add > 100:
                     raise CommandLimitReached(guild_id=guild_id, limit=100)
 
             # Actually add the command now that it has been verified to be okay.
@@ -327,7 +332,9 @@ class CommandTree(Generic[ClientT]):
             found = name in self._global_commands
             if found and not override:
                 raise CommandAlreadyRegistered(name, None)
-            if len(self._global_commands) + found > 100:
+
+            to_add = not (override and found)
+            if len(self._global_commands) + to_add > 100:
                 raise CommandLimitReached(guild_id=None, limit=100)
             self._global_commands[name] = root
 
@@ -790,6 +797,7 @@ class CommandTree(Generic[ClientT]):
         *,
         name: str = MISSING,
         description: str = MISSING,
+        nsfw: bool = False,
         guild: Optional[Snowflake] = MISSING,
         guilds: Sequence[Snowflake] = MISSING,
     ) -> Callable[[CommandCallback[Group, P, T]], Command[Group, P, T]]:
@@ -804,6 +812,10 @@ class CommandTree(Generic[ClientT]):
             The description of the application command. This shows up in the UI to describe
             the application command. If not given, it defaults to the first line of the docstring
             of the callback shortened to 100 characters.
+        nsfw: :class:`bool`
+            Whether the command is NSFW and should only work in NSFW channels. Defaults to ``False``.
+
+            Due to a Discord limitation, this does not work on subcommands.
         guild: Optional[:class:`~discord.abc.Snowflake`]
             The guild to add the command to. If not given or ``None`` then it
             becomes a global command instead.
@@ -829,6 +841,7 @@ class CommandTree(Generic[ClientT]):
                 name=name if name is not MISSING else func.__name__,
                 description=desc,
                 callback=func,
+                nsfw=nsfw,
                 parent=None,
             )
             self.add_command(command, guild=guild, guilds=guilds)
@@ -840,6 +853,7 @@ class CommandTree(Generic[ClientT]):
         self,
         *,
         name: str = MISSING,
+        nsfw: bool = False,
         guild: Optional[Snowflake] = MISSING,
         guilds: Sequence[Snowflake] = MISSING,
     ) -> Callable[[ContextMenuCallback], ContextMenu]:
@@ -868,6 +882,10 @@ class CommandTree(Generic[ClientT]):
             The name of the context menu command. If not given, it defaults to a title-case
             version of the callback name. Note that unlike regular slash commands this can
             have spaces and upper case characters in the name.
+        nsfw: :class:`bool`
+            Whether the command is NSFW and should only work in NSFW channels. Defaults to ``False``.
+
+            Due to a Discord limitation, this does not work on subcommands.
         guild: Optional[:class:`~discord.abc.Snowflake`]
             The guild to add the command to. If not given or ``None`` then it
             becomes a global command instead.
@@ -882,7 +900,7 @@ class CommandTree(Generic[ClientT]):
                 raise TypeError('context menu function must be a coroutine function')
 
             actual_name = func.__name__.title() if name is MISSING else name
-            context_menu = ContextMenu(name=actual_name, callback=func)
+            context_menu = ContextMenu(name=actual_name, nsfw=nsfw, callback=func)
             self.add_command(context_menu, guild=guild, guilds=guilds)
             return context_menu
 

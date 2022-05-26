@@ -87,6 +87,7 @@ if TYPE_CHECKING:
         threads,
         scheduled_event,
         sticker,
+        welcome_screen,
     )
     from .types.snowflake import Snowflake, SnowflakeList
 
@@ -486,8 +487,8 @@ class HTTPClient:
 
                             continue
 
-                        # we've received a 500, 502, or 504, unconditional retry
-                        if response.status in {500, 502, 504}:
+                        # we've received a 500, 502, 504, or 524, unconditional retry
+                        if response.status in {500, 502, 504, 524}:
                             await asyncio.sleep(1 + tries * 2)
                             continue
 
@@ -540,12 +541,11 @@ class HTTPClient:
     async def static_login(self, token: str) -> user.User:
         # Necessary to get aiohttp to stop complaining about session creation
         if self.connector is MISSING:
-            self.connector = aiohttp.TCPConnector(loop=self.loop, limit=0)
+            self.connector = aiohttp.TCPConnector(limit=0)
 
         self.__session = aiohttp.ClientSession(
             connector=self.connector,
             ws_response_class=DiscordClientWebSocketResponse,
-            loop=self.loop,
             trace_configs=None if self.http_trace is None else [self.http_trace],
         )
         self._global_over = asyncio.Event()
@@ -1211,6 +1211,22 @@ class HTTPClient:
             params['after'] = after
 
         return self.request(Route('GET', '/guilds/{guild_id}/bans', guild_id=guild_id), params=params)
+
+    def get_welcome_screen(self, guild_id: Snowflake) -> Response[welcome_screen.WelcomeScreen]:
+        return self.request(Route('GET', '/guilds/{guild_id}/welcome-screen', guild_id=guild_id))
+
+    def edit_welcome_screen(
+        self, guild_id: Snowflake, *, reason: Optional[str] = None, **fields: Any
+    ) -> Response[welcome_screen.WelcomeScreen]:
+        valid_keys = (
+            'description',
+            'welcome_channels',
+            'enabled',
+        )
+        payload = {k: v for k, v in fields.items() if k in valid_keys}
+        return self.request(
+            Route('PATCH', '/guilds/{guild_id}/welcome-screen', guild_id=guild_id), json=payload, reason=reason
+        )
 
     def get_ban(self, user_id: Snowflake, guild_id: Snowflake) -> Response[guild.Ban]:
         return self.request(Route('GET', '/guilds/{guild_id}/bans/{user_id}', guild_id=guild_id, user_id=user_id))
